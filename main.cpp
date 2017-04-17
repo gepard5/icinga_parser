@@ -28,6 +28,7 @@ class Token {
 			DEFINE,
 			OBJECT_START,
 			OBJECT_END,
+			KEY_VALUE_SEPARATOR,
 			VALUE_SEPARATOR,
 			STRING,
 			COMMENT
@@ -64,7 +65,7 @@ class Lexer {
 		std::vector<Token> parse(str_itr, str_itr, std::string) const;
 		Token::TYPE getTokenType( const std::string& ) const;
 
-		void addComment(const char& c)
+		void addComment(const char c)
 		{ comments.insert(c); }
 
 		void addIcingaObject(const std::string& i)
@@ -76,16 +77,19 @@ class Lexer {
 		void addValueSeparators(const std::string& v)
 		{ value_separators.insert(v); }
 
+		void addKeyValueSeparators(const std::string& k)
+		{ key_value_separators.insert(k); }
+
 		void addObjectStart(const std::string& o)
 		{ object_start.insert(o); }
 
 		void addObjectEnd(const std::string& o)
 		{ object_end.insert(o); }
 
-		void addStringEnd(const char& s)
+		void addStringEnd(const char s)
 		{ string_end.insert(s); }
 
-		void addWhitespace(const char& s)
+		void addWhitespace(const char s)
 		{ whitespace.insert(s); }
 
 		bool isComment(const std::string& c) const
@@ -100,17 +104,22 @@ class Lexer {
 		bool isValueSeparator(const std::string& c) const
 		{ return value_separators.count(c) == 1; }
 
+		bool isKeyValueSeparator(const std::string& c) const
+		{ return key_value_separators.count(c) == 1; }
+
 		bool isObjectStart(const std::string& c) const
 		{ return object_start.count(c) == 1; }
 
 		bool isObjectEnd(const std::string& c) const
 		{ return object_end.count(c) == 1; }
 
-		bool isStringEnd(const char& c) const
+		bool isStringEnd(const char c) const
 		{ return string_end.count(c) == 1; }
 
-		bool isWhitespace(const char& c) const
+		bool isWhitespace(const char c) const
 		{ return whitespace.count(c) == 1; }
+
+		bool isSingleCharToken(const char c) const;
 
 	private:
 		std::string::iterator eraseComment( str_itr, str_itr ) const;
@@ -118,6 +127,7 @@ class Lexer {
 		StringSet icinga_objects;
 		StringSet defines;
 		StringSet value_separators;
+		StringSet key_value_separators;
 		StringSet object_start;
 		StringSet object_end;
 		std::set<char> comments;
@@ -126,23 +136,32 @@ class Lexer {
 };
 
 std::vector<Token> Lexer::parse(str_itr begin, str_itr end, std::string curr_file) const {
-	auto curr = begin;
 	std::vector<Token> tokens;
 	tokens.clear();
 	int current_row = 1;
+	auto curr = begin;
 	while( begin != end )
 	{
-		while( begin != end && isWhitespace( *begin ) )
-		{
+		std::string curr_token;
+		if( !isSingleCharToken(*curr) ) {
+
+			while( begin != end && isWhitespace( *begin ) )
+			{
+				++begin;
+			}
+
+			while( curr != end && !isStringEnd(*curr) )
+			{
+				++curr;
+			}
+
+			curr_token = std::string(begin, curr);
+			begin = curr;
+		}
+		else {
+			curr_token = std::string(1, *curr );
 			++begin;
 		}
-
-		while( curr != end && !isStringEnd(*curr) )
-		{
-			++curr;
-		}
-
-		std::string curr_token(begin, curr);
 		std::cout<<"Current token: "<<curr_token<<std::endl;
 		auto type = getTokenType(curr_token);
 
@@ -159,7 +178,6 @@ std::vector<Token> Lexer::parse(str_itr begin, str_itr end, std::string curr_fil
 			++curr;
 		}
 
-		begin = curr;
 		curr = curr == end ? curr : std::next(curr);
 
 		tokens.push_back( Token(curr_token, curr_file, type, current_row) );
@@ -168,14 +186,25 @@ std::vector<Token> Lexer::parse(str_itr begin, str_itr end, std::string curr_fil
 	return tokens;
 }
 
+bool Lexer::isSingleCharToken(const char c) const
+{
+	std::string token(1,c);
+	return isIcingaObject( token )
+		|| isDefine( token )
+		|| isObjectStart( token )
+		|| isObjectEnd( token )
+		|| isValueSeparator( token );
+}
+
 Token::TYPE Lexer::getTokenType( const std::string& token ) const
 {
-	if( isComment(token) )		return Token::COMMENT;
-	if( isIcingaObject(token) ) return Token::ICINGA_OBJECT;
-	if( isDefine(token) ) 		return Token::DEFINE;
-	if( isObjectStart(token) )	return Token::OBJECT_START;
-	if( isObjectEnd(token) )	return Token::OBJECT_END;
-	if(isValueSeparator(token)) return Token::VALUE_SEPARATOR;
+	if( isComment(token) )			return Token::COMMENT;
+	if( isIcingaObject(token) )		return Token::ICINGA_OBJECT;
+	if( isDefine(token) ) 			return Token::DEFINE;
+	if( isObjectStart(token) )		return Token::OBJECT_START;
+	if( isObjectEnd(token) )		return Token::OBJECT_END;
+	if(isValueSeparator(token)) 	return Token::VALUE_SEPARATOR;
+	if(isKeyValueSeparator(token)) 	return Token::KEY_VALUE_SEPARATOR;
 	return Token::STRING;
 }
 
@@ -193,14 +222,24 @@ int main()
 	Lexer lexer;
 	lexer.addDefines("define");
 	lexer.addIcingaObject("host");
+	lexer.addIcingaObject("hostgroup");
+	lexer.addIcingaObject("service");
+	lexer.addIcingaObject("servicegroup");
+	lexer.addIcingaObject("contact");
+	lexer.addIcingaObject("command");
+	lexer.addIcingaObject("commandgroup");
 	lexer.addObjectStart("{");
 	lexer.addObjectEnd("}");
 	lexer.addWhitespace(' ');
+	lexer.addWhitespace('\n');
+	lexer.addWhitespace('\t');
+	lexer.addValueSeparators(",");
+	lexer.addKeyValueSeparators("=");
 	lexer.addStringEnd(' ');
 	lexer.addStringEnd('{');
 	lexer.addStringEnd('}');
 
-	std::string test = "define     host{     par1     par2}";
+	std::string test = "{define     host{     par1     par2}";
 
 	auto result = lexer.parse(test.begin(), test.end(), "file" );
 
