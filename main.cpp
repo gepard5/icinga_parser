@@ -17,6 +17,7 @@
  */
 #include <stdlib.h>
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <vector>
 #include <set>
@@ -32,6 +33,7 @@ class Token {
 			USE,
 			KEY_VALUE_SEPARATOR,
 			VALUE_SEPARATOR,
+			LONG_VALUE,
 			STRING,
 			COMMENT
 		};
@@ -104,6 +106,9 @@ class Lexer {
 		void addObjectUses(const std::string& o)
 		{ object_uses.insert(o); }
 
+		void addLongValue(const std::string& o)
+		{ long_value.insert(o); }
+
 		void addStringEnd(const char s)
 		{ string_end.insert(s); }
 
@@ -137,6 +142,9 @@ class Lexer {
 		bool isObjectUse(const std::string& c) const
 		{ return object_uses.count(c) == 1; }
 
+		bool isLongValue(const std::string& c) const
+		{ return long_value.count(c) == 1; }
+
 		bool isStringEnd(const char c) const
 		{ return string_end.count(c) == 1; }
 
@@ -156,6 +164,7 @@ class Lexer {
 		StringSet object_end;
 		StringSet object_members;
 		StringSet object_uses;
+		StringSet long_value;
 		std::set<char> comments;
 		std::set<char> whitespace;
 		std::set<char> string_end;
@@ -226,6 +235,7 @@ Token::TYPE Lexer::getTokenType( const std::string& token ) const
 	if( isKeyValueSeparator(token)) return Token::KEY_VALUE_SEPARATOR;
 	if( isObjectMember(token) ) 	return Token::MEMBERS;
 	if( isObjectUse(token) ) 		return Token::USE;
+	if( isLongValue(token) )		return Token::LONG_VALUE;
 	return Token::STRING;
 }
 
@@ -238,7 +248,19 @@ std::string::iterator Lexer::eraseComment(str_itr begin, str_itr end) const
 	return begin;
 }
 
-int main()
+inline std::string read_from_file(char const* infile)
+{
+    std::ifstream instream(infile);
+    if (!instream.is_open()) {
+        std::cerr << "Couldn't open file: " << infile << std::endl;
+        exit(-1);
+    }
+    instream.unsetf(std::ios::skipws);      // No white space skipping!
+    return std::string(std::istreambuf_iterator<char>(instream.rdbuf()),
+                       std::istreambuf_iterator<char>());
+}
+
+int main( int argc, char* argv[] )
 {
 	Lexer lexer;
 	lexer.addComment('#');
@@ -260,11 +282,17 @@ int main()
 	lexer.addKeyValueSeparators("=");
 	lexer.addObjectUses("use");
 	lexer.addObjectMembers("members");
+	lexer.addLongValue("alias");
+	lexer.addLongValue("service_description");
 	lexer.addStringEnd(' ');
 	lexer.addStringEnd('{');
 	lexer.addStringEnd('}');
+	lexer.addStringEnd('\t');
+	lexer.addStringEnd('\n');
+	lexer.addStringEnd('=');
+	lexer.addStringEnd(',');
 
-	std::string test = "{define  \n   host{  \n  #par1 \n    par2}";
+	auto test = read_from_file( argc == 1 ? "test" :  argv[1] );
 
 	auto result = lexer.parse(test.begin(), test.end(), "file" );
 
