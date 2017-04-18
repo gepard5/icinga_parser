@@ -3,15 +3,15 @@
  *
  *       Filename:  lexer.cpp
  *
- *    Description:  
+ *    Description:  Parsing icinga configuration and showing connections between its objects
  *
  *        Version:  1.0
  *        Created:  17.04.2017 22:51:59
  *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  YOUR NAME (), 
- *   Organization:  
+ *         Author:  Michał Glinka
+ *   Organization:  Politechnika Warszawska
  *
  * =====================================================================================
  */
@@ -70,7 +70,8 @@ bool Lexer::isSingleCharToken(const char c) const
 		|| isDefine( token )
 		|| isObjectStart( token )
 		|| isObjectEnd( token )
-		|| isValueSeparator( token );
+		|| isValueSeparator( token )
+		|| isComment( token );
 }
 
 Token::TYPE Lexer::getTokenType( const std::string& token ) const

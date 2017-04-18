@@ -3,15 +3,15 @@
  *
  *       Filename:  main.cpp
  *
- *    Description:  
+ *    Description:  Parsing icinga files and showing connections between them
  *
  *        Version:  1.0
  *        Created:  17.04.2017 16:07:40
  *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  YOUR NAME (), 
- *   Organization:  
+ *         Author:  Michał Glinka
+ *   Organization:  Politechnika Warszawska
  *
  * =====================================================================================
  */
@@ -41,6 +41,12 @@ inline std::string read_from_file(char const* infile)
 
 int main( int argc, char* argv[] )
 {
+	if( argc != 2 ) {
+		std::cout << "Wrong usage of program \n ";
+		std::cout << "./icinaParser file_to_parse\n";
+		return 0;
+	}
+
 	Lexer lexer;
 	lexer.addComment('#');
 	lexer.addComment(';');
@@ -70,10 +76,12 @@ int main( int argc, char* argv[] )
 	lexer.addStringEnd('\n');
 	lexer.addStringEnd('=');
 	lexer.addStringEnd(',');
+	lexer.addStringEnd('#');
+	lexer.addStringEnd(';');
 
-	auto test = read_from_file( argc == 1 ? "test" :  argv[1] );
+	auto test = read_from_file( argv[1] );
 
-	auto result = lexer.parse(test.begin(), test.end(), "file" );
+	auto result = lexer.parse(test.begin(), test.end(), argv[1] );
 
 	std::cout<<"Result is: "<<result.size()<<std::endl;
 	for( auto& a : result )
