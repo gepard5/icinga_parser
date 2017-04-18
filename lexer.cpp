@@ -66,12 +66,7 @@ std::vector<Token> Lexer::parse(str_itr begin, str_itr end, std::string curr_fil
 bool Lexer::isSingleCharToken(const char c) const
 {
 	std::string token(1,c);
-	return isIcingaObject( token )
-		|| isDefine( token )
-		|| isObjectStart( token )
-		|| isObjectEnd( token )
-		|| isValueSeparator( token )
-		|| isComment( token );
+	return getTokenType( token ) != Token::STRING;
 }
 
 Token::TYPE Lexer::getTokenType( const std::string& token ) const

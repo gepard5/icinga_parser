@@ -84,6 +84,6 @@ int main( int argc, char* argv[] )
 	auto result = lexer.parse(test.begin(), test.end(), argv[1] );
 
 	std::cout<<"Result is: "<<result.size()<<std::endl;
-	for( auto& a : result )
+	for( const auto& a : result )
 		a.printInfo();
 }
