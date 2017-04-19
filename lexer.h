@@ -24,15 +24,19 @@
 #include <set>
 
 #include "token.h"
+#include "source.h"
 
 
 class Lexer {
 	public:
-		typedef std::set<std::string> StringSet;
-		typedef std::string::iterator str_itr;
+		Lexer() { initializeLexer(); }
 
-		std::vector<Token> parse(str_itr, str_itr, std::string) const;
+		void initializeLexer();
+		Token getNextToken(Source& source) const;
 		Token::TYPE getTokenType( const std::string& ) const;
+
+	private:
+		typedef std::set<std::string> StringSet;
 
 		void addComment(const char c)
 		{ comments.insert(c); }
@@ -100,16 +104,16 @@ class Lexer {
 		bool isLongValue(const std::string& c) const
 		{ return long_value.count(c) == 1; }
 
+		bool isEOF(const std::string& s) const
+		{ return s.front() == EOF; }
+
 		bool isStringEnd(const char c) const
 		{ return string_end.count(c) == 1; }
 
 		bool isWhitespace(const char c) const
 		{ return whitespace.count(c) == 1; }
 
-		bool isSingleCharToken(const char c) const;
-
-	private:
-		std::string::iterator eraseComment( str_itr, str_itr ) const;
+		bool isSingleCharToken(const std::string& s) const;
 
 		StringSet icinga_objects;
 		StringSet defines;

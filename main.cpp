@@ -24,6 +24,8 @@
 
 #include "lexer.h"
 #include "token.h"
+#include "fileSource.h"
+
 
 
 inline std::string read_from_file(char const* infile)
@@ -48,42 +50,12 @@ int main( int argc, char* argv[] )
 	}
 
 	Lexer lexer;
-	lexer.addComment('#');
-	lexer.addComment(';');
-	lexer.addDefines("define");
-	lexer.addIcingaObject("host");
-	lexer.addIcingaObject("hostgroup");
-	lexer.addIcingaObject("service");
-	lexer.addIcingaObject("servicegroup");
-	lexer.addIcingaObject("contact");
-	lexer.addIcingaObject("command");
-	lexer.addIcingaObject("commandgroup");
-	lexer.addObjectStart("{");
-	lexer.addObjectEnd("}");
-	lexer.addWhitespace(' ');
-	lexer.addWhitespace('\n');
-	lexer.addWhitespace('\t');
-	lexer.addValueSeparators(",");
-	lexer.addKeyValueSeparators("=");
-	lexer.addObjectUses("use");
-	lexer.addObjectMembers("members");
-	lexer.addLongValue("alias");
-	lexer.addLongValue("service_description");
-	lexer.addStringEnd(' ');
-	lexer.addStringEnd('{');
-	lexer.addStringEnd('}');
-	lexer.addStringEnd('\t');
-	lexer.addStringEnd('\n');
-	lexer.addStringEnd('=');
-	lexer.addStringEnd(',');
-	lexer.addStringEnd('#');
-	lexer.addStringEnd(';');
 
-	auto test = read_from_file( argv[1] );
-
-	auto result = lexer.parse(test.begin(), test.end(), argv[1] );
-
-	std::cout<<"Result is: "<<result.size()<<std::endl;
-	for( const auto& a : result )
-		a.printInfo();
+	FileSource source;
+	source.openFile( argv[1] );
+ 	auto token = lexer.getNextToken( source );
+	while ( token.getType() != Token::END_OF_FILE ) {
+		token.printInfo();
+		token = lexer.getNextToken( source );
+	}
 }

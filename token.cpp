@@ -36,6 +36,5 @@ void Token::printInfo() const
 {
 	std::cout<<"Value: " << value << std::endl;
 	std::cout<<"Token type: " << token_types[type] << std::endl;
-	std::cout<<"File: " << file << std::endl;
-	std::cout<<"Row: " << row << std::endl;
+	std::cout<<"Row: " << row << " column: " << column << std::endl;
 }

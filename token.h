@@ -27,22 +27,26 @@
 class Token {
 	public:
 		enum TYPE {
-			ICINGA_OBJECT,
-			DEFINE,
-			OBJECT_START,
-			OBJECT_END,
-			MEMBERS,
-			USE,
-			KEY_VALUE_SEPARATOR,
-			VALUE_SEPARATOR,
-			LONG_VALUE,
-			STRING,
-			COMMENT
+			ICINGA_OBJECT,							//typ obiektu icinga: 
+													//"host", "hostgroup", "service", 
+													//"servicegroup", "command", "commandgroup", "contact"
+			DEFINE,									//"define"
+			OBJECT_START,							//początek definicji obiektu: "{"
+			OBJECT_END,								//koniec definicji obiektu: "}"
+			MEMBERS,								//nazwy członków grupy: "members"
+			USE,									//nazwy używanych zależności: "use"
+			KEY_VALUE_SEPARATOR,					//rodziela klucz i wartość globalnego ustawienia: "="
+			VALUE_SEPARATOR,						//rodziela ciąg wartości : ","
+			LONG_VALUE,								//po tym tokenie wartością są wszystkie następne stringi w linii: 
+													//"alias", "service_description"
+			COMMENT,								//komentarz: ( # | ; )[^\n]*
+			STRING,									//ciągi znaków
+			END_OF_FILE								//koniec pliku
 		};
 
 
-		Token(const std::string& v, const std::string& f, TYPE t, int r ) :
-		 type(t), value(v), file(f), row(r)	{}
+		Token(const std::string& v, TYPE t, int r, int c ) :
+		 type(t), value(v), row(r), column(c)	{}
 
 		void printInfo() const;
 
@@ -52,16 +56,12 @@ class Token {
 		std::string getValue() const
 		{ return value; }
 
-		std::string getFile() const
-		{ return file; }
-
-		int getRow() const
-		{ return row; }
+		std::pair<int, int> getPosition() const
+		{ return std::make_pair(row, column); }
 	private:
 		TYPE type;
 		std::string value;
-		std::string file;
-		int row;
+		int row, column;
 		static std::map<TYPE, std::string> token_types;
 };
 

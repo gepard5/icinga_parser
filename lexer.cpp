@@ -19,54 +19,66 @@
 #include "lexer.h"
 
 
-std::vector<Token> Lexer::parse(str_itr begin, str_itr end, std::string curr_file) const {
-	std::vector<Token> tokens;
-	tokens.clear();
-	int current_row = 1;
-	while( begin != end )
-	{
-		std::string curr_token;
-		while( begin != end && isWhitespace( *begin ) )
-		{
-			if( *begin == '\n' ) ++current_row;
-			++begin;
-		}
-		auto curr = begin;
-
-		if( !isSingleCharToken(*curr) ) {
-
-			while( curr != end && !isStringEnd(*curr) )
-			{
-				++curr;
-			}
-
-			curr_token = std::string(begin, curr);
-			begin = curr;
-		}
-		else {
-			curr_token = std::string(1, *curr );
-			++begin;
-		}
-
-		if( isComment(curr_token) ) {
-			begin = eraseComment(begin, end);
-			curr = begin;
-			++current_row;
-			continue;
-		}
-
-
-		auto type = getTokenType(curr_token);
-		tokens.push_back( Token(curr_token, curr_file, type, current_row) );
-
-	}
-	return tokens;
+void Lexer::initializeLexer() {
+	addComment('#');
+	addComment(';');
+	addDefines("define");
+	addIcingaObject("host");
+	addIcingaObject("hostgroup");
+	addIcingaObject("service");
+	addIcingaObject("servicegroup");
+	addIcingaObject("contact");
+	addIcingaObject("command");
+	addIcingaObject("commandgroup");
+	addObjectStart("{");
+	addObjectEnd("}");
+	addWhitespace(' ');
+	addWhitespace('\n');
+	addWhitespace('\t');
+	addValueSeparators(",");
+	addKeyValueSeparators("=");
+	addObjectUses("use");
+	addObjectMembers("members");
+	addLongValue("alias");
+	addLongValue("service_description");
+	addStringEnd(' ');
+	addStringEnd('{');
+	addStringEnd('}');
+	addStringEnd('\t');
+	addStringEnd('\n');
+	addStringEnd('=');
+	addStringEnd(',');
+	addStringEnd('#');
+	addStringEnd(';');
 }
 
-bool Lexer::isSingleCharToken(const char c) const
+Token Lexer::getNextToken(Source& source) const {
+	std::string curr_token;
+	//skip white characters
+	while( source.peekChar() != EOF && isWhitespace( source.peekChar() ) ) {
+		source.getChar();
+	}
+	curr_token.push_back( source.getChar() );
+	if( !isSingleCharToken( curr_token ) ) {
+		while( source.peekChar() != EOF && !isStringEnd( source.peekChar() ) ) {
+			curr_token.push_back( source.getChar() );
+		}
+	}
+
+	auto type = getTokenType( curr_token );
+	if( type == Token::COMMENT ) {
+		while( source.peekChar() != EOF && source.peekChar() != '\n' ) {
+			curr_token.push_back( source.getChar() );
+		}
+		source.getChar();
+	}
+
+	return Token( curr_token, type, source.getRow(), source.getColumn() );
+}
+
+bool Lexer::isSingleCharToken(const std::string& s) const
 {
-	std::string token(1,c);
-	return getTokenType( token ) != Token::STRING;
+	return getTokenType( s ) != Token::STRING;
 }
 
 Token::TYPE Lexer::getTokenType( const std::string& token ) const
@@ -81,15 +93,7 @@ Token::TYPE Lexer::getTokenType( const std::string& token ) const
 	if( isObjectMember(token) ) 	return Token::MEMBERS;
 	if( isObjectUse(token) ) 		return Token::USE;
 	if( isLongValue(token) )		return Token::LONG_VALUE;
+	if( isEOF( token ) )			return Token::END_OF_FILE;
 	return Token::STRING;
-}
-
-std::string::iterator Lexer::eraseComment(str_itr begin, str_itr end) const
-{
-	while( begin != end && *begin != '\n' )
-	{
-		++begin;
-	}
-	return begin;
 }
 
