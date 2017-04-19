@@ -26,21 +26,6 @@
 #include "token.h"
 #include "fileSource.h"
 
-
-
-inline std::string read_from_file(char const* infile)
-{
-    std::ifstream instream(infile);
-    if (!instream.is_open()) {
-        std::cerr << "Couldn't open file: " << infile << std::endl;
-        exit(-1);
-    }
-    instream.unsetf(std::ios::skipws);      // No white space skipping!
-    return std::string(std::istreambuf_iterator<char>(instream.rdbuf()),
-                       std::istreambuf_iterator<char>());
-}
-
-
 int main( int argc, char* argv[] )
 {
 	if( argc != 2 ) {

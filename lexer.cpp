@@ -70,7 +70,6 @@ Token Lexer::getNextToken(Source& source) const {
 		while( source.peekChar() != EOF && source.peekChar() != '\n' ) {
 			curr_token.push_back( source.getChar() );
 		}
-		source.getChar();
 	}
 
 	return Token( curr_token, type, source.getRow(), source.getColumn() );
