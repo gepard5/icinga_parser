@@ -30,6 +30,12 @@ class Token {
 			ICINGA_OBJECT,							//typ obiektu icinga: 
 													//"host", "hostgroup", "service", 
 													//"servicegroup", "command", "commandgroup", "contact"
+			HOST,
+			SERVICE,
+			SERVICEGROUP,
+			HOSTGROUP,
+			COMMAND,
+			TIMEPERIOD,
 			DEFINE,									//"define"
 			OBJECT_START,							//początek definicji obiektu: "{"
 			OBJECT_END,								//koniec definicji obiektu: "}"
@@ -41,7 +47,9 @@ class Token {
 													//"alias", "service_description"
 			COMMENT,								//komentarz: ( # | ; )[^\n]*
 			STRING,									//ciągi znaków
-			END_OF_FILE								//koniec pliku
+			END_OF_FILE,							//koniec pliku
+			UNRECOGNISED,
+			ANY
 		};
 
 
