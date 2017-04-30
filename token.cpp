@@ -20,6 +20,14 @@
 
 std::map<Token::TYPE, std::string> Token::token_types = {
 	{ ICINGA_OBJECT, "icinga_object" },
+	{ HOST, "host" },
+	{ SERVICE, "service" },
+	{ HOSTGROUP, "hostgroup" },
+	{ SERVICEGROUP, "servicegroup" },
+	{ COMMAND, "command" },
+	{ COMMANDGROUP, "commandgroup" },
+	{ TIMEPERIOD, "timeperiod" },
+	{ CONTACT, "contact" },
 	{ DEFINE, "define" },
 	{ OBJECT_START, "object_start" },
 	{ OBJECT_END, "object_end" },
@@ -31,6 +39,11 @@ std::map<Token::TYPE, std::string> Token::token_types = {
 	{ STRING, "string" },
 	{ COMMENT, "comment" }
 };
+
+std::string Token::getTypeString() const
+{
+	return std::string(token_types[type]);
+}
 
 void Token::printInfo() const
 {

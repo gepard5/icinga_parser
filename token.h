@@ -35,6 +35,8 @@ class Token {
 			SERVICEGROUP,
 			HOSTGROUP,
 			COMMAND,
+			COMMANDGROUP,
+			CONTACT,
 			TIMEPERIOD,
 			DEFINE,									//"define"
 			OBJECT_START,							//początek definicji obiektu: "{"
@@ -53,16 +55,21 @@ class Token {
 		};
 
 
+		Token() : type(TYPE::UNRECOGNISED) {}
 		Token(const std::string& v, TYPE t, int r, int c ) :
 		 type(t), value(v), row(r), column(c)	{}
 
 		void printInfo() const;
+		std::string getTypeString() const;
 
 		TYPE getType() const
 		{ return type; }
 
 		std::string getValue() const
 		{ return value; }
+
+		int getRow() const
+		{ return row; }
 
 		std::pair<int, int> getPosition() const
 		{ return std::make_pair(row, column); }

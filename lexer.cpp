@@ -19,37 +19,28 @@
 #include "lexer.h"
 
 
-void Lexer::initializeLexer() {
-	addComment('#');
-	addComment(';');
-	addDefines("define");
-	addIcingaObject("host");
-	addIcingaObject("hostgroup");
-	addIcingaObject("service");
-	addIcingaObject("servicegroup");
-	addIcingaObject("contact");
-	addIcingaObject("command");
-	addIcingaObject("commandgroup");
-	addObjectStart("{");
-	addObjectEnd("}");
-	addWhitespace(' ');
-	addWhitespace('\n');
-	addWhitespace('\t');
-	addValueSeparators(",");
-	addKeyValueSeparators("=");
-	addObjectUses("use");
-	addObjectMembers("members");
-	addLongValue("alias");
-	addLongValue("service_description");
-	addStringEnd(' ');
-	addStringEnd('{');
-	addStringEnd('}');
-	addStringEnd('\t');
-	addStringEnd('\n');
-	addStringEnd('=');
-	addStringEnd(',');
-	addStringEnd('#');
-	addStringEnd(';');
+Lexer::Lexer() {
+	icinga_objects = { "host", "hostgroup", "service", "servicegroup", "contact",
+		"command", "commandgroup" };
+	host = { "host" };
+	hostgroup = { "hostgroup" };
+	service = { "service" };
+	servicegroup = { "servicegroup" };
+	contact = { "contact" };
+	command = { "command" };
+	commandgroup = { "commandgroup" };
+	timeperiod = { "timeperiod" };
+	defines = { "define" };
+	value_separators = { "," };
+	key_value_separators = { "=" };
+	object_start = { "{" };
+	object_end = { "}" };
+	object_members = { "members" };
+	object_uses = { "use" };
+	long_value = { "alias", "service_description", "check_command" };
+	comments = { '#', ';' };
+	whitespace = { ' ', '\t', '\n' };
+	string_end = { ' ', '{', '}', '\t', '\n', '=', ',', '#', ';' };
 }
 
 Token Lexer::getNextToken(Source& source) const {
@@ -83,7 +74,14 @@ bool Lexer::isSingleCharToken(const std::string& s) const
 Token::TYPE Lexer::getTokenType( const std::string& token ) const
 {
 	if( isComment(token) )			return Token::COMMENT;
-	if( isIcingaObject(token) )		return Token::ICINGA_OBJECT;
+	if( isHost(token) )				return Token::HOST;
+	if( isHostgroup(token) )		return Token::HOSTGROUP;
+	if( isService(token) )			return Token::SERVICE;
+	if( isServicegroup(token) )		return Token::SERVICEGROUP;
+	if( isContact(token) )			return Token::CONTACT;
+	if( isCommand(token) )			return Token::COMMAND;
+	if( isCommandgroup(token) )		return Token::COMMANDGROUP;
+	if( isTimeperiod(token) )		return Token::TIMEPERIOD;
 	if( isDefine(token) ) 			return Token::DEFINE;
 	if( isObjectStart(token) )		return Token::OBJECT_START;
 	if( isObjectEnd(token) )		return Token::OBJECT_END;

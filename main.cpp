@@ -25,6 +25,7 @@
 #include "lexer.h"
 #include "token.h"
 #include "fileSource.h"
+#include "parser.h"
 
 int main( int argc, char* argv[] )
 {
@@ -35,12 +36,10 @@ int main( int argc, char* argv[] )
 	}
 
 	Lexer lexer;
+	Parser parser;
 
 	FileSource source;
 	source.openFile( argv[1] );
- 	auto token = lexer.getNextToken( source );
-	while ( token.getType() != Token::END_OF_FILE ) {
-		token.printInfo();
-		token = lexer.getNextToken( source );
-	}
+	parser.parseSource( source, lexer );
+	parser.printInfo();
 }

@@ -15,21 +15,47 @@
  *
  * =====================================================================================
  */
-
+#include <stdlib.h>
+#include <string>
+#include <map>
+#include <set>
 
 
 class IcingaObject {
 	public:
-		void addKeyValue( const std::string& key, const std::string& value) = 0;
-		virtual void addUse( const std::string& value ) = 0;
-		virtual void addMember( const std::string& member ) = 0;
+		virtual void addKeyValue( const std::string& key, const std::string& value);
+		virtual void addUse( const std::string& value );
+		virtual void addMember( const std::string& member );
+		virtual void printInfo() const;
 	protected:
 		std::map< std::string, std::string> properties;
+		std::set< std::string > use;
+		std::set< std::string > members;
 };
 
 class Host : public IcingaObject {
-	public:
-		void addKeyValue( const std::string& key, const std::string& value);
-		void addUse( const std::string& value );
-		void addMember( const std::string& member );
-}
+};
+
+class Hostgroup : public IcingaObject {
+};
+
+class Service : public IcingaObject {
+};
+
+class Servicegroup : public IcingaObject {
+};
+
+class Command : public IcingaObject {
+};
+
+class Commandgroup : public IcingaObject {
+};
+
+class Timeperiod : public IcingaObject {
+};
+
+class Contact : public IcingaObject {
+};
+
+class GlobalProperties : public IcingaObject {
+};
