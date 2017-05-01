@@ -36,7 +36,7 @@ Lexer::Lexer() {
 	object_start = { "{" };
 	object_end = { "}" };
 	object_members = { "members" };
-	object_uses = { "use" };
+	object_uses = { "use", "hostgroups" };
 	long_value = { "alias", "service_description", "check_command" };
 	comments = { '#', ';' };
 	whitespace = { ' ', '\t', '\n' };

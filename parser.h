@@ -18,6 +18,7 @@
 #include <stdlib.h>
 
 #include <map>
+#include <list>
 #include <functional>
 #include "lexer.h"
 #include "parser_exceptions.h"
@@ -26,7 +27,12 @@
 
 class Parser {
 	public:
-		Parser();
+		Parser() { initParser(); }
+		Parser(std::list<Host>& h, std::list<Hostgroup>& hg, std::list<Service>& s,
+				std::list<Servicegroup>& sg, std::list<Contact>& c, std::list<Command>& cmd,
+				std::list<Commandgroup>& cmdg, std::list<Timeperiod>& t, GlobalProperties& gp ) :
+			global_object(gp), hosts(h), hostgroups(hg), services(s), servicegroups(sg), contacts(c),
+			timeperiods(t), commands(cmd),commandgroups(cmdg) { initParser(); }
 		void parseSource( Source& source, Lexer& lexer );
 		void test();
 		void printInfo() const;
@@ -46,6 +52,9 @@ class Parser {
 			INSIDE_OBJECT_MEMBER,
 			INSIDE_OBJECT_NEXT_MEMBER
 		};
+
+		void initParser();
+
 		void onString();
 		void onDefine();
 		void onHost();
@@ -75,14 +84,14 @@ class Parser {
 		IcingaObject *object;
 		GlobalProperties global_object;
 		Token token;
-		std::vector<Host> hosts;
-		std::vector<Hostgroup> hostgroups;
-		std::vector<Service> services;
-		std::vector<Servicegroup> servicegroups;
-		std::vector<Contact> contacts;
-		std::vector<Timeperiod> timeperiods;
-		std::vector<Command> commands;
-		std::vector<Commandgroup> commandgroups;
+		std::list<Host> hosts;
+		std::list<Hostgroup> hostgroups;
+		std::list<Service> services;
+		std::list<Servicegroup> servicegroups;
+		std::list<Contact> contacts;
+		std::list<Timeperiod> timeperiods;
+		std::list<Command> commands;
+		std::list<Commandgroup> commandgroups;
 		std::map<STATE, std::set<Token::TYPE> > expected_tokens;
 		std::map<Token::TYPE, std::function<void()> > semantic_actions;
 };

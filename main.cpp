@@ -22,10 +22,7 @@
 #include <vector>
 #include <set>
 
-#include "lexer.h"
-#include "token.h"
-#include "fileSource.h"
-#include "parser.h"
+#include "icinga_parser.h"
 
 int main( int argc, char* argv[] )
 {
@@ -35,11 +32,6 @@ int main( int argc, char* argv[] )
 		return 0;
 	}
 
-	Lexer lexer;
-	Parser parser;
-
-	FileSource source;
-	source.openFile( argv[1] );
-	parser.parseSource( source, lexer );
-	parser.printInfo();
+	IcingaParser ip;
+	ip.parseIcinga("/home/gepard/test_directory");
 }

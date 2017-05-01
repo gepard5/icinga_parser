@@ -19,7 +19,7 @@
 
 #include "parser.h"
 
-Parser::Parser() {
+void Parser::initParser() {
 	expected_tokens[GLOBAL_SCOPE] = { Token::STRING, Token::DEFINE };
 	expected_tokens[GLOBAL_SCOPE_KEY] = { Token::KEY_VALUE_SEPARATOR };
 	expected_tokens[GLOBAL_SCOPE_VALUE] = { Token::STRING };

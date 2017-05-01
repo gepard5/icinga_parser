@@ -15,6 +15,9 @@
  *
  * =====================================================================================
  */
+#ifndef ICINGA_OBJECT
+#define ICINGA_OBJECT
+
 #include <stdlib.h>
 #include <string>
 #include <map>
@@ -59,3 +62,5 @@ class Contact : public IcingaObject {
 
 class GlobalProperties : public IcingaObject {
 };
+
+#endif
