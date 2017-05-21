@@ -47,3 +47,18 @@ void IcingaObject::printInfo() const
 	for( const auto& m : members )
 		std::cout<<m<<std::endl;
 }
+
+std::string IcingaObject::getName()
+{
+	return properties["name"];
+}
+
+std::string Host::getName()
+{
+	return properties["host_name"];
+}
+
+std::string Service::getName()
+{
+	return properties["host_name"];
+}

@@ -24,3 +24,8 @@ class UnexpectedTokenException : public std::logic_error {
 	UnexpectedTokenException( const std::string& s ) : std::logic_error( s ) {}
 
 };
+
+class UnexpectedTemplateName : public std::logic_error {
+	public:
+		UnexpectedTemplateName( const std::string& s ) : std::logic_error( s ) {}
+};

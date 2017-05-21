@@ -27,10 +27,9 @@
 
 class Parser {
 	public:
-		Parser() { initParser(); }
-		Parser(std::list<Host>& h, std::list<Hostgroup>& hg, std::list<Service>& s,
-				std::list<Servicegroup>& sg, std::list<Contact>& c, std::list<Command>& cmd,
-				std::list<Commandgroup>& cmdg, std::list<Timeperiod>& t, GlobalProperties& gp ) :
+		Parser(std::list<IcingaObject*>& h, std::list<IcingaObject*>& hg, std::list<IcingaObject*>& s,
+				std::list<IcingaObject*>& sg, std::list<IcingaObject*>& c, std::list<IcingaObject*>& cmd,
+				std::list<IcingaObject*>& cmdg, std::list<IcingaObject*>& t, GlobalProperties& gp ) :
 			global_object(gp), hosts(h), hostgroups(hg), services(s), servicegroups(sg), contacts(c),
 			timeperiods(t), commands(cmd),commandgroups(cmdg) { initParser(); }
 		void parseSource( Source& source, Lexer& lexer );
@@ -79,19 +78,20 @@ class Parser {
 
 		STATE state;
 		int row;
+		int object_id;
 		std::string key, value;
 		std::string file;
 		IcingaObject *object;
 		GlobalProperties global_object;
 		Token token;
-		std::list<Host> hosts;
-		std::list<Hostgroup> hostgroups;
-		std::list<Service> services;
-		std::list<Servicegroup> servicegroups;
-		std::list<Contact> contacts;
-		std::list<Timeperiod> timeperiods;
-		std::list<Command> commands;
-		std::list<Commandgroup> commandgroups;
+		std::list<IcingaObject*>& hosts;
+		std::list<IcingaObject*>& hostgroups;
+		std::list<IcingaObject*>& services;
+		std::list<IcingaObject*>& servicegroups;
+		std::list<IcingaObject*>& contacts;
+		std::list<IcingaObject*>& timeperiods;
+		std::list<IcingaObject*>& commands;
+		std::list<IcingaObject*>& commandgroups;
 		std::map<STATE, std::set<Token::TYPE> > expected_tokens;
 		std::map<Token::TYPE, std::function<void()> > semantic_actions;
 };

@@ -28,10 +28,11 @@ int main( int argc, char* argv[] )
 {
 	if( argc != 2 ) {
 		std::cout << "Wrong usage of program \n ";
-		std::cout << "./icinaParser file_to_parse\n";
+		std::cout << "./icinaParser folder_to_parse\n";
 		return 0;
 	}
 
 	IcingaParser ip;
 	ip.parseIcinga("/home/gepard/test_directory");
+	ip.drawAll();
 }

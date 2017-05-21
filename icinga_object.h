@@ -22,27 +22,66 @@
 #include <string>
 #include <map>
 #include <set>
+#include <list>
 
+#include <SFML/Graphics.hpp>
+#include <SFML/Window.hpp>
 
-class IcingaObject {
+#include "drawingobject.h"
+
+class IcingaObject : public DrawingObject  {
 	public:
 		virtual void addKeyValue( const std::string& key, const std::string& value);
 		virtual void addUse( const std::string& value );
 		virtual void addMember( const std::string& member );
 		virtual void printInfo() const;
+
+		virtual void setID(int i)
+		{ id = i; }
+
+		virtual int getID() const
+		{ return id; }
+
+		virtual std::string getName();
+
+		virtual bool isVisible() const
+		{ return visible; }
+
+		virtual void setVisible( bool v )
+		{ visible = v; }
+
+		virtual std::set< std::string >& getUses()
+		{ return use; }
+
+		virtual std::set< std::string >& getMembers()
+		{ return members; }
+
+		void addObject( IcingaObject* s )
+		{ objects.push_back( s ); }
+
+		std::list<IcingaObject*>& getObjects()
+		{ return objects; }
+
 	protected:
+		bool visible;
+		int id;
 		std::map< std::string, std::string> properties;
 		std::set< std::string > use;
 		std::set< std::string > members;
-};
-
-class Host : public IcingaObject {
-};
-
-class Hostgroup : public IcingaObject {
+		std::list<IcingaObject*> objects;
 };
 
 class Service : public IcingaObject {
+	public:
+		std::string getName();
+};
+
+class Host : public IcingaObject {
+	public:
+		std::string getName();
+};
+
+class Hostgroup : public IcingaObject {
 };
 
 class Servicegroup : public IcingaObject {

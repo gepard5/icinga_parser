@@ -58,15 +58,15 @@ void Parser::printInfo() const
 {
 	for( const auto& h : hosts )
 	{
-		h.printInfo();
+		h->printInfo();
 	}
 	for( const auto& hg : hostgroups )
 	{
-		hg.printInfo();
+		hg->printInfo();
 	}
 	for( const auto &s : services )
 	{
-		s.printInfo();
+		s->printInfo();
 	}
 }
 
@@ -159,54 +159,56 @@ void Parser::onDefine() {
 }
 
 void Parser::onHost() {
-	hosts.push_back( Host() );
-	object = &( hosts.back() );
+	hosts.push_back( new Host() );
+	object = hosts.back();
 	state = STATE::DEFINED_OBJECT;
 }
 
 void Parser::onHostgroup() {
-	hostgroups.push_back( Hostgroup() );
-	object = &( hostgroups.back() );
+	hostgroups.push_back( new Hostgroup() );
+	object = hostgroups.back();
 	state = STATE::DEFINED_OBJECT;
 }
 
 void Parser::onService() {
-	services.push_back( Service() );
-	object = &( services.back() );
+	services.push_back( new Service() );
+	object = services.back();
 	state = STATE::DEFINED_OBJECT;
 }
 
 void Parser::onServicegroup() {
-	servicegroups.push_back( Servicegroup() );
-	object = &( servicegroups.back() );
+	servicegroups.push_back( new Servicegroup() );
+	object = servicegroups.back();
 	state = STATE::DEFINED_OBJECT;
 }
 
 void Parser::onCommand() {
-	commands.push_back( Command() );
-	object = &( commands.back() );
+	commands.push_back( new Command() );
+	object = commands.back();
 	state = STATE::DEFINED_OBJECT;
 }
 
 void Parser::onCommandgroup() {
-	commandgroups.push_back( Commandgroup() );
-	object = &( commandgroups.back() );
+	commandgroups.push_back( new Commandgroup() );
+	object = commandgroups.back();
 	state = STATE::DEFINED_OBJECT;
 }
 
 void Parser::onContact() {
-	contacts.push_back( Contact() );
-	object = &( contacts.back() );
+	contacts.push_back( new Contact() );
+	object = contacts.back();
 	state = STATE::DEFINED_OBJECT;
 }
 
 void Parser::onTimeperiod() {
-	timeperiods.push_back( Timeperiod() );
-	object = &( timeperiods.back() );
+	timeperiods.push_back( new Timeperiod() );
+	object = timeperiods.back();
 	state = STATE::DEFINED_OBJECT;
 }
 
 void Parser::onObjectStart() {
+	object->setID( object_id );
+	++object_id;
 	state = STATE::INSIDE_OBJECT;
 }
 

@@ -20,34 +20,76 @@
 
 #include "parser.h"
 #include "dirent.h"
+#include "drawingobject.h"
 
 #include <list>
+#include <functional>
+
+class Button : public DrawingObject {
+	public:
+		void setButtonAction(std::function<void()> f)
+		{ button_action = f; }
+
+		void makeAction()
+		{ button_action(); }
+
+	protected:
+		std::function<void()> button_action;
+};
 
 class IcingaParser {
 public:
 	IcingaParser() :
 		parser( hosts, hostgroups, services,
-				servicegroups, contacts, commands, commandgroups, timeperiods, global_object ) {}
+				servicegroups, contacts, commands, commandgroups, timeperiods, global_object ) {init();  }
+	~IcingaParser();
+	void init();
 	void parseIcinga( const std::string& p );
 	void parseDirectory( const std::string& directory );
 	void parseFile( const std::string& file );
 	void processDirectory(const std::string& directory);
 	void processFile(const std::string& file);
 	void processEntity(struct dirent* entity);
+	void drawAll();
+	void setAllVisible();
+	void setAllInvisible();
+	void setAllWhite();
 
 private:
+	void createHostsMap();
+	IcingaObject* getIntersectionObject(float x, float y);
+	void showDependencies( IcingaObject* );
+	bool setObjectDependency( IcingaObject* );
+	Button *getButtonClicked( float, float );
+
+	void setHostsAsMain();
+	void setServicesAsMain();
+	void resetAll();
+	void exitWindow();
+
+	Button buttons[4];
+
 	GlobalProperties global_object;
 	std::string path;
-	std::list<Host> hosts;
-	std::list<Hostgroup> hostgroups;
-	std::list<Service> services;
-	std::list<Servicegroup> servicegroups;
-	std::list<Contact> contacts;
-	std::list<Timeperiod> timeperiods;
-	std::list<Command> commands;
-	std::list<Commandgroup> commandgroups;
+	std::map<std::string, IcingaObject*> hosts_map;
+	std::list<IcingaObject*> hosts;
+	std::list<IcingaObject*> hostgroups;
+	std::list<IcingaObject*> services;
+	std::list<IcingaObject*> servicegroups;
+	std::list<IcingaObject*> contacts;
+	std::list<IcingaObject*> timeperiods;
+	std::list<IcingaObject*> commands;
+	std::list<IcingaObject*> commandgroups;
 	Lexer lexer;
 	Parser parser;
+
+	std::list<IcingaObject*> *main_list;
+	std::list<IcingaObject*> *secondary_list;
+
+	const int BUTTON_LEVEL = 725;
+	sf::Font font;
+	sf::RenderWindow *window_ptr;
 };
+
 
 #endif
