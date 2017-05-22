@@ -38,42 +38,18 @@ bool hasEnding (std::string const &fullString, std::string const &ending) {
 
 IcingaParser::~IcingaParser()
 {
-	for( auto o : hosts )
-	{
-		delete o;
-	}
-	for( auto o : hostgroups )
-	{
-		delete o;
-	}
-	for( auto o : services )
-	{
-		delete o;
-	}
-	for( auto o : servicegroups )
-	{
-		delete o;
-	}
-	for( auto o : contacts )
-	{
-		delete o;
-	}
-	for( auto o : timeperiods )
-	{
-		delete o;
-	}
-	for( auto o : commands )
-	{
-		delete o;
-	}
-	for( auto o : commandgroups )
-	{
-		delete o;
-	}
+	while(!hosts.empty()) { delete hosts.front(); hosts.pop_front(); }
+	while(!services.empty()) { delete services.front(); services.pop_front(); }
+	while(!contacts.empty()) { delete contacts.front(); contacts.pop_front(); }
+	while(!timeperiods.empty()) { delete timeperiods.front(); timeperiods.pop_front(); }
+	while(!commands.empty()) { delete commands.front(); commands.pop_front(); }
+	while(!commandgroups.empty()) { delete commandgroups.front(); commandgroups.pop_front(); }
 }
 
 void IcingaParser::init()
 {
+		hostgroups.clear();
+
 		if( !font.loadFromFile( "arial.ttf" ) ) {
 			throw UnexpectedTemplateName( "s" );
 		}
@@ -240,6 +216,7 @@ void IcingaParser::drawAll()
 		y += 2*radius;
 	}
 
+	setObjectsProperties();
 	while(window.isOpen())
 	{
 		sf::Event event;
@@ -266,15 +243,8 @@ void IcingaParser::drawAll()
 
 		window.clear();
 
-		float x = 100, y = 100, radius = 30;
-		float xshift = 15, yshift = 7;
 		for( auto h : *main_list )
 		{
-			x = 100;
-			h->setFont(font);
-			h->setSize( sf::Vector2f(40,50) );
-			h->setText(std::to_string(h->getID()));
-			h->setPosition(x,y);
 			if( h->isVisible() ) {
 				window.draw(h->getRect());
 				window.draw(h->getText());
@@ -284,17 +254,9 @@ void IcingaParser::drawAll()
 			{
 				if( !h->isVisible() )
 					continue;
-				x += 2*radius;
-				s->setPosition( x, y );
-				sf::Text text;
-				text.setFont(font);
-				text.setString(std::to_string(s->getID()));
-				s->setSize( sf::Vector2f(40,50) );
-				text.setPosition( x+xshift, y+yshift );
 				window.draw(s->getRect());
 				window.draw(s->getText());
 			}
-			y += 2*radius;
 		}
 
 		for( auto& b : buttons )
@@ -315,7 +277,9 @@ void IcingaParser::setObjectsProperties()
 	{
 		x = 100;
 		h->setFont(font);
+		h->setFillColor(sf::Color::White);
 		h->setSize( sf::Vector2f(40,50) );
+		h->setCharacterSize( 20 );
 		h->setText(std::to_string(h->getID()));
 		h->setPosition(x,y);
 		auto objects = h->getObjects();
@@ -325,6 +289,7 @@ void IcingaParser::setObjectsProperties()
 			s->setPosition( x, y );
 			sf::Text text;
 			text.setFont(font);
+			s->setFillColor(sf::Color::White);
 			text.setString(std::to_string(s->getID()));
 			s->setSize( sf::Vector2f(40,50) );
 			text.setPosition( x+xshift, y+yshift );
@@ -492,9 +457,11 @@ void IcingaParser::exitWindow()
 void IcingaParser::setHostsAsMain()
 {
 	main_list = &hosts;
+	setObjectsProperties();
 }
 
 void IcingaParser::setServicesAsMain()
 {
 	main_list = &services;
+	setObjectsProperties();
 }

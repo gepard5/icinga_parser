@@ -39,6 +39,9 @@ class DrawingObject {
 		void setFillColor( sf::Color c )
 		{ rect.setFillColor(c); text.setColor(sf::Color::Black); }
 
+		void setCharacterSize( int size )
+		{ text.setCharacterSize( size ); }
+
 		sf::Color getColor() const
 		{ return rect.getFillColor(); }
 

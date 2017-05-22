@@ -58,6 +58,11 @@ std::string Host::getName()
 	return properties["host_name"];
 }
 
+std::string Hostgroup::getName()
+{
+	return properties["host_name"];
+}
+
 std::string Service::getName()
 {
 	return properties["host_name"];

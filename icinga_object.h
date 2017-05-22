@@ -31,6 +31,7 @@
 
 class IcingaObject : public DrawingObject  {
 	public:
+		virtual ~IcingaObject() {}
 		virtual void addKeyValue( const std::string& key, const std::string& value);
 		virtual void addUse( const std::string& value );
 		virtual void addMember( const std::string& member );
@@ -82,6 +83,8 @@ class Host : public IcingaObject {
 };
 
 class Hostgroup : public IcingaObject {
+	public:
+		std::string getName();
 };
 
 class Servicegroup : public IcingaObject {

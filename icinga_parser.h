@@ -60,6 +60,7 @@ private:
 	IcingaObject* getIntersectionObject(float x, float y);
 	void showDependencies( IcingaObject* );
 	bool setObjectDependency( IcingaObject* );
+	void setObjectsProperties();
 	Button *getButtonClicked( float, float );
 
 	void parseDependencies();
