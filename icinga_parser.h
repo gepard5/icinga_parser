@@ -62,6 +62,8 @@ private:
 	bool setObjectDependency( IcingaObject* );
 	Button *getButtonClicked( float, float );
 
+	void parseDependencies();
+
 	void setHostsAsMain();
 	void setServicesAsMain();
 	void resetAll();
@@ -86,9 +88,11 @@ private:
 	std::list<IcingaObject*> *main_list;
 	std::list<IcingaObject*> *secondary_list;
 
-	const int BUTTON_LEVEL = 725;
+	const int BUTTON_LEVEL = 525;
 	sf::Font font;
 	sf::RenderWindow *window_ptr;
+
+	bool cfg_only;
 };
 
 

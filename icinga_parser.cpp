@@ -28,6 +28,14 @@ bool in_range( int a, int b, int c )
 	return a > b && a < c;
 }
 
+bool hasEnding (std::string const &fullString, std::string const &ending) {
+    if (fullString.length() >= ending.length()) {
+        return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
+    } else {
+        return false;
+    }
+}
+
 IcingaParser::~IcingaParser()
 {
 	for( auto o : hosts )
@@ -114,9 +122,6 @@ void IcingaParser::parseIcinga( const std::string& directory ) {
 	parser.printInfo();
 
     closedir(dir);
-
-	createHostsMap();
-	setAllVisible();
 }
 
 void IcingaParser::processDirectory(const std::string& directory)
@@ -166,20 +171,34 @@ void IcingaParser::processEntity(struct dirent* entity)
 
 void IcingaParser::processFile(const std::string& file)
 {
-	std::cout<<"File: "<<file<<std::endl;
 	parseFile( file );
 }
 
 void IcingaParser::parseFile( const std::string& file )
 {
 	FileSource source;
+	if( cfg_only && !hasEnding( file, ".cfg" ) )
+		return;
 	source.openFile( file );
 	parser.parseSource( source, lexer );
 }
 
-void createObjectDependencies() 
+void IcingaParser::parseDependencies()
 {
+	hosts.insert( hosts.end(), hostgroups.begin(), hostgroups.end() );
+	services.insert( services.end(), servicegroups.begin(), servicegroups.end() );
+	createHostsMap();
 
+	for( auto& s : services )
+	{
+		std::string name = s->getName();
+		if( !name.empty() ) {
+			if( hosts_map.count( name ) == 0 )
+			   throw UnexpectedTemplateName( name );
+			hosts_map[name]->addObject( s );
+			s->addObject( hosts_map[name] );
+		}
+	}
 }
 
 void IcingaParser::drawAll()
@@ -187,15 +206,38 @@ void IcingaParser::drawAll()
 	sf::RenderWindow window(sf::VideoMode(800, 800), "Planar visualization");
 	window_ptr = &window;
 
+	parseDependencies();
 	setAllVisible();
 	setAllWhite();
-
-	for( auto& s : services )
+	float x = 100, y = 100, radius = 30;
+	float xshift = 15, yshift = 7;
+	for( auto h : *main_list )
 	{
-		std::string name = s->getName();
-		std::cout<<"Object name: "<<name<<std::endl;
-		if( !name.empty() )
-			hosts_map[name]->addObject( s );
+		x = 100;
+		h->setFont(font);
+		h->setSize( sf::Vector2f(40,50) );
+		h->setText(std::to_string(h->getID()));
+		h->setPosition(x,y);
+		if( h->isVisible() ) {
+			window.draw(h->getRect());
+			window.draw(h->getText());
+		}
+		auto objects = h->getObjects();
+		for( auto s : objects )
+		{
+			if( !h->isVisible() )
+				continue;
+			x += 2*radius;
+			s->setPosition( x, y );
+			sf::Text text;
+			text.setFont(font);
+			text.setString(std::to_string(s->getID()));
+			s->setSize( sf::Vector2f(40,50) );
+			text.setPosition( x+xshift, y+yshift );
+			window.draw(s->getRect());
+			window.draw(s->getText());
+		}
+		y += 2*radius;
 	}
 
 	while(window.isOpen())
@@ -207,7 +249,6 @@ void IcingaParser::drawAll()
 				window.close();
 
 			if( event.type == sf::Event::MouseButtonPressed ) {
-				std::cout<<"Mouse button pressed: "<<event.mouseButton.x<<" "<< event.mouseButton.y<<std::endl;
 				auto current_button = getButtonClicked(event.mouseButton.x, event.mouseButton.y);
 				if( current_button ) {
 					current_button->makeAction();
@@ -266,6 +307,32 @@ void IcingaParser::drawAll()
 	}
 }
 
+void IcingaParser::setObjectsProperties()
+{
+	float x = 100, y = 100, radius = 30;
+	float xshift = 15, yshift = 7;
+	for( auto h : *main_list )
+	{
+		x = 100;
+		h->setFont(font);
+		h->setSize( sf::Vector2f(40,50) );
+		h->setText(std::to_string(h->getID()));
+		h->setPosition(x,y);
+		auto objects = h->getObjects();
+		for( auto s : objects )
+		{
+			x += 2*radius;
+			s->setPosition( x, y );
+			sf::Text text;
+			text.setFont(font);
+			text.setString(std::to_string(s->getID()));
+			s->setSize( sf::Vector2f(40,50) );
+			text.setPosition( x+xshift, y+yshift );
+		}
+		y += 2*radius;
+	}
+}
+
 void IcingaParser::setAllVisible()
 {
 	for( auto h : *main_list )
@@ -283,10 +350,6 @@ void IcingaParser::setAllInvisible()
 	for( auto h : *main_list )
 	{
 		h->setVisible( false );
-	}
-	for( auto s : *secondary_list )
-	{
-		s->setVisible( false );
 	}
 }
 
@@ -369,8 +432,10 @@ void IcingaParser::showDependencies( IcingaObject* object )
 
 void IcingaParser::setAllWhite()
 {
-	for( auto h : *main_list )
+	for( auto h : hosts )
 		h->setFillColor( sf::Color::White );
+	for( auto s : services )
+		s->setFillColor( sf::Color::White );
 }
 
 bool IcingaParser::setObjectDependency( IcingaObject *object )
