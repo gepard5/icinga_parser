@@ -42,4 +42,3 @@ void FileSource::openFile( const std::string& s ) {
 	row = 1;
 	column = 1;
 }
-

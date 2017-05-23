@@ -43,6 +43,9 @@ class FileSource : public Source {
 
 		int getColumn() const
 		{ return column; }
+
+		std::string getSourceName() const
+		{ return file; }
 	private:
 		std::string file;
 		std::ifstream instream;

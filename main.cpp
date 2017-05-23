@@ -22,17 +22,74 @@
 #include <vector>
 #include <set>
 
+#include <boost/program_options.hpp>
+
 #include "icinga_parser.h"
+
+namespace po = boost::program_options;
 
 int main( int argc, char* argv[] )
 {
-	if( argc != 2 ) {
-		std::cout << "Wrong usage of program \n ";
-		std::cout << "./icinaParser folder_to_parse\n";
+	po::variables_map vm;
+	po::options_description desc("Allowed options");
+	try{
+		desc.add_options()
+			("help,h",					"produce help message")
+			("visualize,v",				"show dependepcies on a screen")
+			("cfg_only,c",				"parse only files with *cfg suffix")
+			("location,l", po::value<std::string>(),				"folder to parse")
+			("print_info,p",				"print all parsed objects")
+		;
+
+		po::store(po::parse_command_line(argc, argv, desc), vm);
+		po::notify(vm);
+	}
+	catch( po::error& e )
+	{
+		std::cout<<e.what()<<std::endl;
+		std::cout<<desc<<std::endl;
+		return 0;
+	}
+	std::string directory;
+	IcingaParser ip;
+
+	if( vm.count("help" )  ){
+			std::cout<<desc<<std::endl;
+			return 0;
+	}
+
+	if( vm.count("location") ) {
+		directory = vm["location"].as<std::string>();
+	}
+	else {
+		std::cout<<desc<<std::endl;
 		return 0;
 	}
 
-	IcingaParser ip;
-	ip.parseIcinga("/home/gepard/test_directory");
-	ip.drawAll();
+	if( vm.count("cfg_only") ) {
+		ip.setCfgOnly(true);
+	}
+
+	try{
+	ip.parseIcinga(directory);
+	}
+	catch( std::logic_error& e ) {
+		std::cout<<e.what()<<std::endl;
+		ip.printStatus();
+		return 0;
+	}
+
+	if( vm.count("print_info") ) {
+		ip.printInfo();
+	}
+
+	if( vm.count("visualize") ) {
+		try{
+		ip.drawAll();
+		}
+		catch( std::logic_error& e ) {
+			std::cout<<e.what()<<std::endl;
+			return 0;
+		}
+	}
 }

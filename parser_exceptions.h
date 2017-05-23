@@ -16,16 +16,23 @@
  * =====================================================================================
  */
 
+#ifndef PARSER_EXCEPTIONS
+#define PARSER_EXCEPTIONS
+
 #include <exception>
 #include <stdexcept>
 
 class UnexpectedTokenException : public std::logic_error {
 	public:
-	UnexpectedTokenException( const std::string& s ) : std::logic_error( s ) {}
+	UnexpectedTokenException( const std::string& s ) : 
+		std::logic_error( "Unexpected Token found: " + s ) {}
 
 };
 
 class UnexpectedTemplateName : public std::logic_error {
 	public:
-		UnexpectedTemplateName( const std::string& s ) : std::logic_error( s ) {}
+		UnexpectedTemplateName( const std::string& s ) : 
+			std::logic_error( "Unexpected Template Name found: " + s ) {}
 };
+
+#endif

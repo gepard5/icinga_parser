@@ -23,20 +23,22 @@ void Parser::initParser() {
 	expected_tokens[GLOBAL_SCOPE] = { Token::STRING, Token::DEFINE };
 	expected_tokens[GLOBAL_SCOPE_KEY] = { Token::KEY_VALUE_SEPARATOR };
 	expected_tokens[GLOBAL_SCOPE_VALUE] = { Token::STRING };
-	expected_tokens[DEFINE] = { Token::HOST, Token::SERVICE, Token::SERVICEGROUP,
+	expected_tokens[DEFINE] = { Token::HOST, Token::SERVICE, Token::SERVICEGROUP, Token::CONTACT,
 		Token::HOSTGROUP, Token::COMMANDGROUP, Token::COMMAND, Token::TIMEPERIOD };
 	expected_tokens[DEFINED_OBJECT] = { Token::OBJECT_START };
 	expected_tokens[INSIDE_OBJECT] = { Token::STRING, Token::LONG_VALUE,
 		Token::USE, Token::MEMBERS, Token::OBJECT_END };
 	expected_tokens[INSIDE_OBJECT_KEY] = { Token::STRING };
+	expected_tokens[INSIDE_OBJECT_VALUE] = { Token::STRING, Token::LONG_VALUE, 
+		Token::USE, Token::MEMBERS, Token::OBJECT_END, Token::VALUE_SEPARATOR };
 	expected_tokens[INSIDE_OBJECT_LONG_VALUE] = { Token::STRING, Token::OBJECT_END, Token::LONG_VALUE,
 		Token::USE, Token::MEMBERS, Token::VALUE_SEPARATOR, Token::KEY_VALUE_SEPARATOR };
 	expected_tokens[INSIDE_OBJECT_USE] = { Token::STRING };
 	expected_tokens[INSIDE_OBJECT_NEXT_USE] = { Token::VALUE_SEPARATOR, Token::OBJECT_END,
-		Token::STRING, Token::USE, Token::MEMBERS };
+		Token::STRING, Token::USE, Token::MEMBERS, Token::LONG_VALUE };
 	expected_tokens[INSIDE_OBJECT_MEMBER] = { Token::STRING };
 	expected_tokens[INSIDE_OBJECT_NEXT_MEMBER] = { Token::VALUE_SEPARATOR, Token::OBJECT_END,
-		Token::STRING, Token::USE, Token::MEMBERS };
+		Token::STRING, Token::USE, Token::MEMBERS, Token::LONG_VALUE };
 
 
 	semantic_actions[Token::STRING] = std::bind( &Parser::onString, this );
@@ -44,14 +46,19 @@ void Parser::initParser() {
 	semantic_actions[Token::HOST] = std::bind( &Parser::onHost, this );
 	semantic_actions[Token::HOSTGROUP] = std::bind( &Parser::onHostgroup, this );
 	semantic_actions[Token::SERVICE] = std::bind( &Parser::onService, this );
+	semantic_actions[Token::TIMEPERIOD] = std::bind( &Parser::onTimeperiod, this );
 	semantic_actions[Token::OBJECT_START] = std::bind( &Parser::onObjectStart, this );
 	semantic_actions[Token::OBJECT_END] = std::bind( &Parser::onObjectEnd, this );
 	semantic_actions[Token::COMMENT] = std::bind( &Parser::onComment, this );
+	semantic_actions[Token::COMMAND] = std::bind( &Parser::onCommand, this );
+	semantic_actions[Token::CONTACT] = std::bind( &Parser::onContact, this );
 	semantic_actions[Token::LONG_VALUE] = std::bind( &Parser::onLongValue, this );
 	semantic_actions[Token::MEMBERS] = std::bind( &Parser::onMembers, this );
 	semantic_actions[Token::USE] = std::bind( &Parser::onUse, this );
 	semantic_actions[Token::VALUE_SEPARATOR] = std::bind( &Parser::onValueSeparator, this );
 	semantic_actions[Token::KEY_VALUE_SEPARATOR] = std::bind( &Parser::onKeyValueSeparator, this );
+
+	object_id = 0;
 }
 
 void Parser::printInfo() const
@@ -77,6 +84,9 @@ bool Parser::isTokenTypeExpected(const Token::TYPE& type)
 }
 
 void Parser::parseSource( Source& source, Lexer& lexer) {
+	file = source.getSourceName();
+	std::cout<<file<<std::endl;
+	row = 0;
 	state = GLOBAL_SCOPE;
 	token = lexer.getNextToken(source);
 	while( token.getType() != Token::END_OF_FILE ) {
@@ -110,9 +120,16 @@ void Parser::onString() {
 	}
 
 	if( state == STATE::INSIDE_OBJECT_KEY ) {
-		value = token.getValue();
-		state = STATE::INSIDE_OBJECT;
+		value += token.getValue();
+		state = STATE::INSIDE_OBJECT_VALUE;
+		return;
+	}
+
+	if( state == STATE::INSIDE_OBJECT_VALUE ) {
 		object->addKeyValue( key, value );
+		key = token.getValue();
+		value = std::string();
+		state = STATE::INSIDE_OBJECT_KEY;
 		return;
 	}
 
@@ -209,10 +226,15 @@ void Parser::onTimeperiod() {
 void Parser::onObjectStart() {
 	object->setID( object_id );
 	++object_id;
+	value = std::string();
 	state = STATE::INSIDE_OBJECT;
 }
 
 void Parser::onObjectEnd() {
+	if( state == STATE::INSIDE_OBJECT_VALUE ) {
+		object->addKeyValue( key, value );
+	}
+
 	if( state == STATE::INSIDE_OBJECT_LONG_VALUE ) {
 		addLongValue();
 	}
@@ -227,6 +249,10 @@ void Parser::onComment() {
 }
 
 void Parser::onLongValue() {
+	if( state == STATE::INSIDE_OBJECT_VALUE ) {
+		object->addKeyValue( key, value );
+	}
+
 	if( state == INSIDE_OBJECT_LONG_VALUE ) {
 		addLongValue();
 	}
@@ -245,6 +271,10 @@ void Parser::addLongValue() {
 }
 
 void Parser::onMembers() {
+	if( state == STATE::INSIDE_OBJECT_VALUE ) {
+		object->addKeyValue( key, value );
+	}
+
 	if( state == STATE::INSIDE_OBJECT_LONG_VALUE ) {
 		addLongValue();
 	}
@@ -253,6 +283,10 @@ void Parser::onMembers() {
 }
 
 void Parser::onUse() {
+	if( state == STATE::INSIDE_OBJECT_VALUE ) {
+		object->addKeyValue( key, value );
+	}
+
 	if( state == STATE::INSIDE_OBJECT_LONG_VALUE ) {
 		addLongValue();
 	}
@@ -261,6 +295,12 @@ void Parser::onUse() {
 }
 
 void Parser::onValueSeparator() {
+	if( state == STATE::INSIDE_OBJECT_VALUE ) {
+		value += token.getValue() + " ";
+		state = STATE::INSIDE_OBJECT_KEY;
+		return;
+	}
+
 	if( state == STATE::INSIDE_OBJECT_NEXT_MEMBER ) {
 		state = STATE::INSIDE_OBJECT_MEMBER;
 		return;
@@ -273,5 +313,16 @@ void Parser::onValueSeparator() {
 }
 
 void Parser::onKeyValueSeparator() {
+	if( state == STATE::INSIDE_OBJECT_LONG_VALUE ) {
+		value += token.getValue();
+		return;
+	}
 	state = STATE::GLOBAL_SCOPE_VALUE;
+}
+
+void Parser::printStatus() const
+{
+	std::cout<<"Parser status"<<std::endl;
+	std::cout<<"Current file: "<<file<<std::endl;
+	std::cout<<"Current row: "<<row<<std::endl;
 }

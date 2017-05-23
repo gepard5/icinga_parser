@@ -26,7 +26,7 @@ Lexer::Lexer() {
 	hostgroup = { "hostgroup" };
 	service = { "service" };
 	servicegroup = { "servicegroup" };
-	contact = { "contact" };
+	contact = { "contact", "contactgroup" };
 	command = { "command" };
 	commandgroup = { "commandgroup" };
 	timeperiod = { "timeperiod" };
@@ -37,7 +37,7 @@ Lexer::Lexer() {
 	object_end = { "}" };
 	object_members = { "members" };
 	object_uses = { "use", "hostgroups" };
-	long_value = { "alias", "service_description", "check_command" };
+	long_value = { "alias", "service_description", "check_command", "command_line" };
 	comments = { '#', ';' };
 	whitespace = { ' ', '\t', '\n' };
 	string_end = { ' ', '{', '}', '\t', '\n', '=', ',', '#', ';' };

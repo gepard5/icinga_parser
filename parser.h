@@ -25,16 +25,28 @@
 #include "icinga_object.h"
 #include "token.h"
 
+struct IcingaObjectLists {
+	std::list<IcingaObject*> *hosts;
+	std::list<IcingaObject*> *hostgroups;
+	std::list<IcingaObject*> *services;
+	std::list<IcingaObject*> *servicegroups;
+	std::list<IcingaObject*> *contacts;
+	std::list<IcingaObject*> *timeperiods;
+	std::list<IcingaObject*> *commands;
+	std::list<IcingaObject*> *commandgroups;
+};
+
 class Parser {
 	public:
-		Parser(std::list<IcingaObject*>& h, std::list<IcingaObject*>& hg, std::list<IcingaObject*>& s,
-				std::list<IcingaObject*>& sg, std::list<IcingaObject*>& c, std::list<IcingaObject*>& cmd,
-				std::list<IcingaObject*>& cmdg, std::list<IcingaObject*>& t, GlobalProperties& gp ) :
-			global_object(gp), hosts(h), hostgroups(hg), services(s), servicegroups(sg), contacts(c),
-			timeperiods(t), commands(cmd),commandgroups(cmdg) { initParser(); }
+		Parser(IcingaObjectLists l, GlobalProperties& gp ) :
+			global_object(gp), hosts(*l.hosts), hostgroups(*l.hostgroups),
+			services(*l.services), servicegroups(*l.servicegroups), contacts(*l.contacts),
+			timeperiods(*l.timeperiods), commands(*l.commands),
+			commandgroups(*l.commandgroups) { initParser(); }
 		void parseSource( Source& source, Lexer& lexer );
 		void test();
 		void printInfo() const;
+		void printStatus() const;
 
 	private:
 		enum STATE {
@@ -45,6 +57,7 @@ class Parser {
 			DEFINED_OBJECT,
 			INSIDE_OBJECT,
 			INSIDE_OBJECT_KEY,
+			INSIDE_OBJECT_VALUE,
 			INSIDE_OBJECT_LONG_VALUE,
 			INSIDE_OBJECT_USE,
 			INSIDE_OBJECT_NEXT_USE,
@@ -95,3 +108,4 @@ class Parser {
 		std::map<STATE, std::set<Token::TYPE> > expected_tokens;
 		std::map<Token::TYPE, std::function<void()> > semantic_actions;
 };
+

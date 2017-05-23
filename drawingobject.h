@@ -19,11 +19,18 @@
 #define DRAWING_OBJECT
 
 #include <string>
+#include <functional>
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 
 class DrawingObject {
 	public:
+		DrawingObject() {}
+
+		DrawingObject(int t, std::function<void()> info)
+			: info_function( info )
+		{ setText(std::to_string(t)); }
+
 		void setPosition(float x, float y)
 		{ rect.setPosition(x, y); text.setPosition(x,y);  }
 
@@ -42,6 +49,9 @@ class DrawingObject {
 		void setCharacterSize( int size )
 		{ text.setCharacterSize( size ); }
 
+		virtual void printInfo()
+		{ info_function(); }
+
 		sf::Color getColor() const
 		{ return rect.getFillColor(); }
 
@@ -58,6 +68,7 @@ class DrawingObject {
 		{ return rect.getSize(); }
 
 	protected:
+		std::function<void()> info_function;
 		sf::Text text;
 		sf::RectangleShape rect;
 };

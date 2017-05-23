@@ -37,8 +37,9 @@ void IcingaObject::addMember( const std::string& member )
 
 void IcingaObject::printInfo() const
 {
+	std::cout<<"CHOSEN OBJECT INFO"<<std::endl;
 	std::cout<<"Properties: "<<std::endl;
-	for( const auto& p : properties ) 
+	for( const auto& p : properties )
 		std::cout<<p.first<<" "<<p.second<<std::endl;
 	std::cout<<"Uses: "<<std::endl;
 	for( const auto& u : use )
@@ -48,6 +49,11 @@ void IcingaObject::printInfo() const
 		std::cout<<m<<std::endl;
 }
 
+void IcingaObject::addObject( IcingaObject* s )
+{
+	objects.push_back( IcingaObject(*s ) );
+}
+
 std::string IcingaObject::getName()
 {
 	return properties["name"];
@@ -55,15 +61,15 @@ std::string IcingaObject::getName()
 
 std::string Host::getName()
 {
-	return properties["host_name"];
+	return properties.count("name") == 1 ? properties["name"] : properties["host_name"];
 }
 
 std::string Hostgroup::getName()
-{
-	return properties["host_name"];
+{ 
+	return properties["hostgroup_name"];
 }
 
-std::string Service::getName()
+std::string Service::getHostName()
 {
 	return properties["host_name"];
 }

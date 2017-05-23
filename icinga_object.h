@@ -57,10 +57,9 @@ class IcingaObject : public DrawingObject  {
 		virtual std::set< std::string >& getMembers()
 		{ return members; }
 
-		void addObject( IcingaObject* s )
-		{ objects.push_back( s ); }
+		void addObject( IcingaObject* s );
 
-		std::list<IcingaObject*>& getObjects()
+		std::list<IcingaObject>& getObjects()
 		{ return objects; }
 
 	protected:
@@ -69,12 +68,12 @@ class IcingaObject : public DrawingObject  {
 		std::map< std::string, std::string> properties;
 		std::set< std::string > use;
 		std::set< std::string > members;
-		std::list<IcingaObject*> objects;
+		std::list<IcingaObject> objects;
 };
 
 class Service : public IcingaObject {
 	public:
-		std::string getName();
+		std::string getHostName();
 };
 
 class Host : public IcingaObject {
@@ -82,12 +81,12 @@ class Host : public IcingaObject {
 		std::string getName();
 };
 
-class Hostgroup : public IcingaObject {
+class Hostgroup : public Host {
 	public:
 		std::string getName();
 };
 
-class Servicegroup : public IcingaObject {
+class Servicegroup : public Service {
 };
 
 class Command : public IcingaObject {

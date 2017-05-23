@@ -25,6 +25,7 @@ class Source {
 		virtual char peekChar() = 0;
 		virtual int getRow() const = 0;
 		virtual int getColumn() const = 0;
+		virtual std::string getSourceName() const = 0;
 };
 
 #endif
