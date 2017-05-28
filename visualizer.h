@@ -65,8 +65,8 @@ class Visualizer {
 	Button buttons[4];
 	sf::Font font;
 	sf::RenderWindow *window_ptr;
-	const int BUTTON_LEVEL = 725;
-	const int WINDOW_HEIGHT = 800;
+	const int BUTTON_LEVEL = 625;
+	const int WINDOW_HEIGHT = 700;
 	const int TILE_HEIGHT = 30;
 	const int FONT_SIZE = 15;
 	const int TILE_WIDTH = 30;

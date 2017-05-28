@@ -62,6 +62,7 @@ int main( int argc, char* argv[] )
 		directory = vm["location"].as<std::string>();
 	}
 	else {
+		std::cout<<"No location to file specified"<<std::endl;
 		std::cout<<desc<<std::endl;
 		return 0;
 	}
@@ -76,6 +77,7 @@ int main( int argc, char* argv[] )
 	catch( std::logic_error& e ) {
 		std::cout<<e.what()<<std::endl;
 		ip.printStatus();
+		ip.showExpectedTokens();
 		return 0;
 	}
 

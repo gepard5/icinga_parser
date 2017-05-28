@@ -36,6 +36,9 @@ public:
 	void printStatus() const
 	{ parser->printStatus(); }
 
+	void showExpectedTokens()
+	{ parser->showExpectedTokens(); }
+
 	void setCfgOnly( bool c )
 	{ cfg_only = c; }
 

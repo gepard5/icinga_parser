@@ -44,9 +44,9 @@ class Parser {
 			timeperiods(*l.timeperiods), commands(*l.commands),
 			commandgroups(*l.commandgroups) { initParser(); }
 		void parseSource( Source& source, Lexer& lexer );
-		void test();
 		void printInfo() const;
 		void printStatus() const;
+		void showExpectedTokens();
 
 	private:
 		enum STATE {

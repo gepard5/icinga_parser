@@ -75,6 +75,10 @@ void Parser::printInfo() const
 	{
 		s->printInfo();
 	}
+	for( const auto& sg : servicegroups )
+	{
+		sg->printInfo();
+	}
 }
 
 bool Parser::isTokenTypeExpected(const Token::TYPE& type)
@@ -325,4 +329,13 @@ void Parser::printStatus() const
 	std::cout<<"Parser status"<<std::endl;
 	std::cout<<"Current file: "<<file<<std::endl;
 	std::cout<<"Current row: "<<row<<std::endl;
+}
+
+void Parser::showExpectedTokens()
+{
+	std::cout<<"Expected tokens: "<<std::endl;
+	for( auto& t : expected_tokens[state] )
+	{
+		std::cout<<Token::typeToString(t)<<std::endl;
+	}
 }

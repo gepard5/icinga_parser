@@ -73,6 +73,9 @@ class Token {
 
 		std::pair<int, int> getPosition() const
 		{ return std::make_pair(row, column); }
+
+		std::string static typeToString( Token::TYPE t )
+		{ return token_types[t]; }
 	private:
 		TYPE type;
 		std::string value;
